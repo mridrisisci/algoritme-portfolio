@@ -49,8 +49,3 @@ function correct() {
     disableButtons();
 }
 
-function disableButtons() {
-    document.querySelector('#too-low').disabled = true;
-    document.querySelector('#too-high').disabled = true;
-    document.querySelector('#correct').disabled = true;
-}
