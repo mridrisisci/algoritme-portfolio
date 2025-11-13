@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Computer guesses your number (binary search)</title>
+    <style>
+      body{font-family:Segoe UI,Arial,sans-serif;max-width:640px;margin:32px;padding:8px}
+      button{margin:6px;padding:8px 12px}
+      #debug{font-family:monospace;background:#f3f3f3;padding:8px;margin-top:12px}
+      #feedback{margin-top:12px;font-weight:bold}
+    </style>
+  </head>
+  <body>
+    <h1>Computer gætter dit tal (binary search)</h1>
+
+    <p>Vælg startområde (heltal):</p>
+    <label>Min: <input id="minInput" type="number" value="1" /></label>
+    <label style="margin-left:12px">Max: <input id="maxInput" type="number" value="100" /></label>
+    <button id="startBtn">Start nyt spil</button>
+
+    <hr />
+
+    <div>
+      <p>Computerens gæt: <span id="guess">—</span></p>
+      <button id="btnHigher">For lavt (mit tal er højere)</button>
+      <button id="btnLower">For højt (mit tal er lavere)</button>
+      <button id="btnCorrect">Korrekt</button>
+      <button id="btnReset">Nulstil</button>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="debug">min: -, middle: -, max: -</div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
