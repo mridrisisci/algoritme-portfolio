@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Queue demo</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Arial;margin:16px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    input[type="text"], input[type="number"]{padding:6px}
+    .queueView{margin-top:12px;display:flex;gap:6px;align-items:center}
+    .node{padding:8px 12px;border:1px solid #bbb;border-radius:6px;background:#fafafa}
+    .headTail{font-size:12px;color:#555;margin-top:6px}
+    .info{margin-top:12px}
+    button{padding:6px 10px}
+  </style>
+</head>
+<body>
+  <h1>Queue demo</h1>
+
+  <div class="controls">
+    <label>Value: <input id="inpValue" type="text" value="item"/></label>
+    <button id="btnEnqueue">Enqueue</button>
+    <button id="btnDequeue">Dequeue</button>
+    <button id="btnPeek">Peek</button>
+    <label>Get index: <input id="inpIndex" type="number" min="0" style="width:72px"/></label>
+    <button id="btnGet">Get</button>
+    <button id="btnClear">Clear</button>
+  </div>
+
+  <div class="queueView" id="queueView"></div>
+  <div class="headTail" id="headTail"></div>
+
+  <div class="info">
+    <strong>Output:</strong>
+    <pre id="output">(actions will appear here)</pre>
+  </div>
+
+  <script type="module">
+    import Queue from './queue.js';
+
+    const inpValue = document.getElementById('inpValue');
+    const btnEnqueue = document.getElementById('btnEnqueue');
+    const btnDequeue = document.getElementById('btnDequeue');
+    const btnPeek = document.getElementById('btnPeek');
+    const btnGet = document.getElementById('btnGet');
+    const btnClear = document.getElementById('btnClear');
+    const inpIndex = document.getElementById('inpIndex');
+    const queueView = document.getElementById('queueView');
+    const headTail = document.getElementById('headTail');
+    const output = document.getElementById('output');
+
+    const q = new Queue();
+
+    function render() {
+      queueView.innerHTML = '';
+      let node = q.head;
+      let i = 0;
+      while (node) {
+        const el = document.createElement('div');
+        el.className = 'node';
+        el.textContent = String(node.data);
+        el.title = 'index ' + i;
+        queueView.appendChild(el);
+        node = node.next;
+        i++;
+      }
+      headTail.textContent = `size: ${q.size()}  |  head: ${q.head ? String(q.head.data) : 'null'}  |  tail: ${q.tail ? String(q.tail.data) : 'null'}`;
+    }
+
+    function log(msg) {
+      output.textContent = msg + '\n' + output.textContent;
+    }
+
+    btnEnqueue.addEventListener('click', () => {
+      const v = inpValue.value;
+      q.enqueue(v);
+      render();
+      log(`enqueue(${JSON.stringify(v)})`);
+    });
+
+    btnDequeue.addEventListener('click', () => {
+      const d = q.dequeue();
+      render();
+      log(`dequeue() => ${JSON.stringify(d)}`);
+    });
+
+    btnPeek.addEventListener('click', () => {
+      const p = q.peek();
+      log(`peek() => ${JSON.stringify(p)}`);
+    });
+
+    btnGet.addEventListener('click', () => {
+      const idx = Number(inpIndex.value);
+      if (!Number.isInteger(idx) || idx < 0) return alert('Enter a valid non-negative integer');
+      const v = q.get(idx);
+      log(`get(${idx}) => ${JSON.stringify(v)}`);
+    });
+
+    btnClear.addEventListener('click', () => {
+      q.clear();
+      render();
+      log('clear()');
+    });
+
+    // seed with a few items
+    q.enqueue('A'); q.enqueue('B'); q.enqueue('C');
+    render();
+  </script>
+</body>
+</html>
