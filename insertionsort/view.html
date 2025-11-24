@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Insertion Sort demo</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Arial;margin:16px}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    input[type="text"]{width:320px}
+    pre{background:#f5f5f5;padding:8px;border-radius:6px}
+    .arrayView{margin-top:12px;display:flex;gap:6px;flex-wrap:wrap}
+    .item{padding:6px 10px;border:1px solid #ddd;border-radius:4px;background:#fff}
+  </style>
+</head>
+<body>
+  <h1>Insertion Sort (shift) — demo</h1>
+  <div class="controls">
+    <label>Array: <input id="inpArr" type="text" value="5,8,2,1,0,4,3,9,7,6"></label>
+    <button id="btnSort">Sort</button>
+    <button id="btnShuffle">Shuffle</button>
+  </div>
+
+  <div class="arrayView" id="arrayView"></div>
+
+  <div style="margin-top:12px">
+    <strong>Result:</strong>
+    <pre id="result">(not sorted yet)</pre>
+  </div>
+
+  <script type="module">
+    import insertionSort from './insertionSort.js';
+
+    const inpArr = document.getElementById('inpArr');
+    const btnSort = document.getElementById('btnSort');
+    const btnShuffle = document.getElementById('btnShuffle');
+    const arrayView = document.getElementById('arrayView');
+    const result = document.getElementById('result');
+
+    function parseInput() {
+      return inpArr.value.split(',').map(s => {
+        const t = s.trim();
+        const n = Number(t);
+        return Number.isNaN(n) ? t : n;
+      });
+    }
+
+    function renderArray(arr) {
+      arrayView.innerHTML = '';
+      for (const v of arr) {
+        const el = document.createElement('div');
+        el.className = 'item';
+        el.textContent = String(v);
+        arrayView.appendChild(el);
+      }
+    }
+
+    btnSort.addEventListener('click', () => {
+      const arr = parseInput();
+      renderArray(arr);
+      const { arr: sortedArr, iterations, sorted } = insertionSort(arr);
+      renderArray(sortedArr);
+      result.textContent = `sorted: ${sorted}\niterations: ${iterations}\nresult: [${sortedArr.join(', ')}]`;
+    });
+
+    btnShuffle.addEventListener('click', () => {
+      const arr = parseInput();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      inpArr.value = arr.join(',');
+      renderArray(arr);
+      result.textContent = '(shuffled)';
+    });
+
+    // initial render
+    renderArray(parseInput());
+  </script>
+</body>
+</html>
