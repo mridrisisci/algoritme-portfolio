@@ -1,0 +1,151 @@
+(<!doctype html>
+<html lang="da">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Grid demo</title>
+	<style>
+		body{font-family:system-ui,Segoe UI,Arial;margin:16px}
+		table{border-collapse:collapse;margin-top:12px}
+		td{width:40px;height:40px;border:1px solid #bbb;text-align:center;cursor:pointer}
+		td:hover{background:#f0f0f0}
+		.controls{display:flex;gap:8px;flex-wrap:wrap}
+		.info{margin-top:12px}
+		.selected{outline:3px solid #3b82f6}
+	</style>
+</head>
+<body>
+	<h1>Grid demo</h1>
+
+	<div class="controls">
+		<label>Rows: <input id="inpRows" type="number" value="5" min="1" style="width:64px"></label>
+		<label>Cols: <input id="inpCols" type="number" value="6" min="1" style="width:64px"></label>
+		<button id="btnCreate">Create grid</button>
+		<label>Fill value: <input id="inpFill" type="text" value="0" style="width:64px"></label>
+		<button id="btnFill">Fill</button>
+		<button id="btnRandom">Randomize</button>
+	</div>
+
+	<div id="gridContainer"></div>
+
+	<div class="info">
+		<strong>Cell info:</strong>
+		<pre id="cellInfo">(click a cell)</pre>
+	</div>
+
+	<script type="module">
+		import Grid from './grid.js';
+
+		const inpRows = document.getElementById('inpRows');
+		const inpCols = document.getElementById('inpCols');
+		const btnCreate = document.getElementById('btnCreate');
+		const btnFill = document.getElementById('btnFill');
+		const btnRandom = document.getElementById('btnRandom');
+		const inpFill = document.getElementById('inpFill');
+		const gridContainer = document.getElementById('gridContainer');
+		const cellInfo = document.getElementById('cellInfo');
+
+		let grid = null;
+		let selectedTd = null;
+
+		function createGrid() {
+			const r = Math.max(1, Number(inpRows.value) || 1);
+			const c = Math.max(1, Number(inpCols.value) || 1);
+			grid = new Grid(r, c);
+			grid.fill(undefined);
+			renderGrid();
+			cellInfo.textContent = '(click a cell)';
+		}
+
+		function renderGrid() {
+			gridContainer.innerHTML = '';
+			const table = document.createElement('table');
+			for (let row = 0; row < grid.rows(); row++) {
+				const tr = document.createElement('tr');
+				for (let col = 0; col < grid.cols(); col++) {
+					const td = document.createElement('td');
+					const v = grid.get({ row, col });
+					td.textContent = v === undefined || v === null ? '' : String(v);
+					td.dataset.row = row;
+					td.dataset.col = col;
+					td.addEventListener('click', onCellClick);
+					td.addEventListener('dblclick', onCellDoubleClick);
+					tr.appendChild(td);
+				}
+				table.appendChild(tr);
+			}
+			gridContainer.appendChild(table);
+		}
+
+		function onCellClick(e) {
+			const td = e.currentTarget;
+			const row = Number(td.dataset.row);
+			const col = Number(td.dataset.col);
+			if (selectedTd) selectedTd.classList.remove('selected');
+			selectedTd = td;
+			td.classList.add('selected');
+			showCellInfo({ row, col });
+		}
+
+		function onCellDoubleClick(e) {
+			const td = e.currentTarget;
+			const row = Number(td.dataset.row);
+			const col = Number(td.dataset.col);
+			const newValue = prompt('New value for cell ('+row+','+col+'):');
+			if (newValue !== null) {
+				grid.set({ row, col }, newValue);
+				renderGrid();
+			}
+		}
+
+		function showCellInfo({ row, col }) {
+			const value = grid.get({ row, col });
+			const idx = grid.indexFor({ row, col });
+			const rc = grid.rowColFor(idx);
+			const neigh = grid.neighbours({ row, col });
+			const neighVals = grid.neighbourValues({ row, col });
+			const north = grid.north({ row, col });
+			const south = grid.south({ row, col });
+			const east = grid.east({ row, col });
+			const west = grid.west({ row, col });
+			const nextR = grid.nextInRow({ row, col });
+			const nextC = grid.nextInCol({ row, col });
+
+			const info = {
+				row, col, index: idx, value,
+				rowColForIndex: rc,
+				neighbours: neigh,
+				neighbourValues: neighVals,
+				north, south, east, west,
+				nextInRow: nextR,
+				nextInCol: nextC
+			};
+			cellInfo.textContent = JSON.stringify(info, null, 2);
+		}
+
+		btnCreate.addEventListener('click', () => {
+			createGrid();
+		});
+
+		btnFill.addEventListener('click', () => {
+			if (!grid) return alert('Create a grid first');
+			const v = inpFill.value;
+			grid.fill(v);
+			renderGrid();
+		});
+
+		btnRandom.addEventListener('click', () => {
+			if (!grid) return alert('Create a grid first');
+			for (let r = 0; r < grid.rows(); r++) {
+				for (let c = 0; c < grid.cols(); c++) {
+					grid.set({ row: r, col: c }, Math.floor(Math.random()*100));
+				}
+			}
+			renderGrid();
+		});
+
+		// create default on load
+		createGrid();
+	</script>
+</body>
+</html>)
